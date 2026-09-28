@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+# The contracts runner compares working bytes with raw Git blobs.
+netgreener-contracts.lock.json text eol=lf
+conformance/*.json text eol=lf
+conformance/*.mjs text eol=lf
+scripts/*.mjs text eol=lf
