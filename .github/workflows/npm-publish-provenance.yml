@@ -1,0 +1,141 @@
+# Provenance-backed npm publish for @netgreener/runtime
+#
+# Trusted Publisher OIDC only (no NPM_TOKEN).
+# Requires: npm >= 11.5.1, Node >= 22.14, public repo, Trusted Publisher
+# configured for workflow filename npm-publish-provenance.yml + env npm-publish.
+#
+# Trigger: tag runtime-vX.Y.Z (after version bump).
+# Mirror sync: npm run example:push-github-public
+# Release:     npm run example:push-github-release
+
+name: npm-publish-provenance
+
+on:
+  push:
+    tags:
+      - "runtime-v*.*.*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build/pack only (no npm publish)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-provenance
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: false
+
+      - name: Upgrade npm for Trusted Publishing
+        run: |
+          set -euo pipefail
+          node -v
+          npm install -g npm@latest
+          npm -v
+          # Trusted Publishing needs npm >= 11.5.1
+          node -e "const v=require('child_process').execSync('npm -v',{encoding:'utf8'}).trim().split('.').map(Number); if(v[0]<11||(v[0]===11&&v[1]<5)||(v[0]===11&&v[1]===5&&v[2]<1)){console.error('Need npm>=11.5.1 got',v.join('.')); process.exit(1)}"
+          # Ensure we do not send an empty bearer token (breaks OIDC → E404).
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "NODE_AUTH_TOKEN is set unexpectedly; unsetting for Trusted Publisher"
+            unset NODE_AUTH_TOKEN
+          fi
+          # Rewrite .npmrc from setup-node so it has no _authToken line.
+          if [ -f "$HOME/.npmrc" ]; then
+            grep -v '_authToken' "$HOME/.npmrc" > "$HOME/.npmrc.oidc" || true
+            mv "$HOME/.npmrc.oidc" "$HOME/.npmrc"
+            echo "--- sanitized ~/.npmrc ---"
+            cat "$HOME/.npmrc" || true
+          fi
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL set: $([ -n \"${ACTIONS_ID_TOKEN_REQUEST_URL:-}\" ] && echo yes || echo no)"
+
+      - name: Install & gate (publish path — private may already be false)
+        env:
+          NETGREENER_ALLOW_PUBLIC_PACKAGE: "1"
+        run: |
+          set -euo pipefail
+          unset NODE_AUTH_TOKEN || true
+          npm ci
+          npm run build
+          npm run example:production-prep-smoke
+          npm run example:pack-smoke
+          npm run example:sbom-prep
+
+      - name: Align tag with package version
+        if: startsWith(github.ref, 'refs/tags/runtime-v')
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#runtime-v}"
+          VER="$(node -p 'require("./package.json").version')"
+          if [[ "$TAG" != "$VER" ]]; then
+            echo "Tag runtime-v${TAG} != package.json version ${VER}"
+            exit 1
+          fi
+
+      - name: Refuse republishing an existing version
+        if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+        run: |
+          set -euo pipefail
+          VER="$(node -p 'require("./package.json").version')"
+          CODE="$(curl -s -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/@netgreener/runtime/${VER}")"
+          if [[ "$CODE" == "200" ]]; then
+            echo "Refusing publish: @netgreener/runtime@${VER} already exists on npm (HTTP 200)."
+            echo "Bump package.json version before tagging a new runtime-v* release."
+            exit 1
+          fi
+          if [[ "$CODE" != "404" ]]; then
+            echo "Unexpected registry status for version check: HTTP ${CODE}"
+            exit 1
+          fi
+          echo "Version ${VER} not on registry yet — OK to publish."
+
+      - name: Open package for publish (release commit expectation)
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs')
+          const p = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+          if (p.private === true) {
+            console.error('package.json still private:true — public mirror must set private:false')
+            process.exit(1)
+          }
+          const url = (p.repository && p.repository.url) || ''
+          if (!String(url).includes('github.com/NetGreener/netgreener-runtime')) {
+            console.error('repository.url must point at NetGreener/netgreener-runtime for Trusted Publisher')
+            process.exit(1)
+          }
+          NODE
+
+      - name: Publish with Trusted Publisher OIDC
+        if: ${{ github.event_name == 'push' || inputs.dry_run == false }}
+        run: |
+          set -euo pipefail
+          unset NODE_AUTH_TOKEN || true
+          if [ -f "$HOME/.npmrc" ]; then
+            grep -v '_authToken' "$HOME/.npmrc" > "$HOME/.npmrc.oidc" || true
+            mv "$HOME/.npmrc.oidc" "$HOME/.npmrc"
+          fi
+          npm publish --access public
+
+      - name: Dry-run notice
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: echo "Dry-run only — no npm publish. Bump version, then npm run example:push-github-release."
