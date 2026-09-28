@@ -1,0 +1,120 @@
+{
+  "emitter": "node",
+  "schema_note": "Legacy compatibility fixture for Node HTTP runtime flushes. It mirrors current Python service_runtime_v0 / external_api_v0 consumers but is not the MP0 cross-language contract.",
+  "run_context": {
+    "deploy_environment": "staging",
+    "client": "netgreener_node_runtime",
+    "release_tag": "example-1.0.0"
+  },
+  "service_runtime_v0": {
+    "framework": "express",
+    "collector": "express_middleware",
+    "window_seconds": 60.0,
+    "attribution": "cpu_share",
+    "accuracy": "trend",
+    "units": [
+      {
+        "service_unit": "GET /health",
+        "unit_type": "http_route",
+        "calls": 12,
+        "errors": 0,
+        "cpu_seconds_total": 0.04,
+        "energy_kwh": 0.0000012,
+        "carbon_g": 0.0003,
+        "duration_ms": {
+          "avg": 8.5,
+          "max": 22.0
+        }
+      },
+      {
+        "service_unit": "POST /v1/predict",
+        "unit_type": "http_route",
+        "calls": 3,
+        "errors": 1,
+        "cpu_seconds_total": 0.21,
+        "energy_kwh": 0.0000063,
+        "carbon_g": 0.0016,
+        "duration_ms": {
+          "avg": 145.0,
+          "max": 310.0
+        },
+        "peak_rss_kb_max": 256000
+      }
+    ],
+    "allocation_reconciliation_v0": {
+      "schema_version": 1,
+      "window_energy_kwh": 0.0000075,
+      "allocated_energy_kwh": 0.0000075,
+      "residual_energy_kwh": 0.0,
+      "tolerance_kwh": 1e-12,
+      "passed": true,
+      "scope": "endpoint_allocation_arithmetic_only",
+      "endpoint_capture_coverage": null,
+      "capture_completeness": "unknown"
+    }
+  },
+  "external_api_v0": {
+    "collector": "outbound_http",
+    "providers": [
+      {
+        "provider_key": "openai",
+        "calls": 3,
+        "errors": 0,
+        "duration_ms_avg": 820.0,
+        "hosts": ["api.openai.com"],
+        "input_tokens": 1100,
+        "output_tokens": 300,
+        "total_tokens": 1400,
+        "models": ["gpt-4o-mini", "gpt-4o"],
+        "by_model": [
+          {
+            "model": "gpt-4o-mini",
+            "calls": 2,
+            "errors": 0,
+            "input_tokens": 100,
+            "output_tokens": 50,
+            "total_tokens": 150
+          },
+          {
+            "model": "gpt-4o",
+            "calls": 1,
+            "errors": 0,
+            "input_tokens": 1000,
+            "output_tokens": 250,
+            "total_tokens": 1250
+          }
+        ]
+      }
+    ]
+  },
+  "measurement_provenance": {
+    "cpu_source": "process_cpu_time",
+    "memory_source": "process_rss_samples",
+    "energy_model": "tdp_utilization_estimate",
+    "gpu_scope": "none",
+    "gpu_source": "unavailable",
+    "carbon_factor": {
+      "value": 0.4,
+      "unit": "kg_co2e_per_kwh",
+      "source": "default_grid_factor"
+    },
+    "evidence_grades": {
+      "schema_version": 1,
+      "policy_version": "r9_v0",
+      "metrics": {
+        "local_energy": {
+          "metric": "local_energy",
+          "grade": "G1",
+          "reasons": ["estimated_power_tdp"]
+        },
+        "local_carbon": {
+          "metric": "local_carbon",
+          "grade": "G1",
+          "reasons": ["estimated_power_tdp", "default_grid_factor"]
+        }
+      },
+      "combined_floor_grade": "G1",
+      "notes": ["vendor_carbon_separate_ledger"]
+    }
+  }
+}
