@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.netgreener.com/contracts/v1/observation-envelope.schema.json",
+  "$comment": "Semantic authoring/TCK conformance view. Canonical field/type/number source is observation/v1/source/observation.proto (ADR 0009). Structural Protobuf JSON view: observation-protobuf-view.schema.json. Dual-view migration; consumer pins not auto-updated.",
+  "title": "NetGreener Observation v1 semantic envelope (MP0 draft)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_name",
+    "schema_version",
+    "contract_status",
+    "batch_id",
+    "batch_sequence",
+    "emitted_at",
+    "source",
+    "routing",
+    "privacy",
+    "events"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_name": { "const": "netgreener.observation.v1" },
+    "schema_version": { "const": 1 },
+    "contract_status": { "const": "mp0_draft" },
+    "batch_id": { "$ref": "#/$defs/batchId" },
+    "batch_sequence": { "$ref": "#/$defs/uint64String" },
+    "emitted_at": { "type": "string", "format": "date-time" },
+    "source": { "$ref": "#/$defs/source" },
+    "routing": { "$ref": "#/$defs/routing" },
+    "privacy": { "$ref": "#/$defs/privacy" },
+    "window": { "$ref": "#/$defs/window" },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/operationEvent" },
+          { "$ref": "#/$defs/operationSummary" },
+          { "$ref": "#/$defs/externalCall" },
+          { "$ref": "#/$defs/resourceSample" },
+          { "$ref": "#/$defs/adapterHealth" }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "uint64String": { "type": "string", "pattern": "^(0|[1-9][0-9]{0,19})$" },
+    "positiveUint64String": { "type": "string", "pattern": "^[1-9][0-9]{0,19}$" },
+    "eventId": { "type": "string", "pattern": "^evt_[0-9a-f]{64}$" },
+    "batchId": { "type": "string", "pattern": "^bat_[0-9a-f]{64}$" },
+    "runtimeInstanceId": { "type": "string", "pattern": "^rti_[0-9a-f]{64}$" },
+    "runtimeWindowId": { "type": "string", "pattern": "^rtw_[0-9a-f]{64}$" },
+    "boundedIdentifier": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,199}$" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "runtime_name",
+        "runtime_version",
+        "adapter_name",
+        "adapter_version",
+        "runtime_instance_id",
+        "capability_ids",
+        "deployment_mode"
+      ],
+      "properties": {
+        "language": { "type": "string", "pattern": "^[a-z][a-z0-9+-]{0,31}$" },
+        "runtime_name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$" },
+        "runtime_version": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "adapter_name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "adapter_version": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "runtime_instance_id": { "$ref": "#/$defs/runtimeInstanceId" },
+        "capability_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^CAP-R[1-6]$" }
+        },
+        "framework": { "type": ["string", "null"], "maxLength": 80 },
+        "deployment_mode": { "enum": ["vm", "container", "kubernetes", "ci_job", "serverless_thin", "local", "unknown"] }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "workload_id", "service_name"],
+      "properties": {
+        "organization_id": { "type": "integer", "minimum": 1 },
+        "project_id": { "type": "integer", "minimum": 1 },
+        "workload_id": { "$ref": "#/$defs/boundedIdentifier" },
+        "service_name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$" },
+        "environment": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,49}$" },
+        "release_tag": { "type": ["string", "null"], "maxLength": 120 }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content_capture", "dimension_policy", "route_policy", "dropped_dimension_count"],
+      "properties": {
+        "content_capture": { "const": "none" },
+        "dimension_policy": { "const": "allowlist" },
+        "route_policy": { "const": "template_or_unknown" },
+        "dropped_dimension_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "start_time", "end_time"],
+      "properties": {
+        "runtime_window_id": { "$ref": "#/$defs/runtimeWindowId" },
+        "state": { "enum": ["open", "closed", "thin"] },
+        "start_time": { "type": "string", "format": "date-time" },
+        "end_time": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "eventCommon": {
+      "type": "object",
+      "required": ["event_id", "sequence", "wall_time_unix_nano", "monotonic_time_ns", "clock_source"],
+      "properties": {
+        "event_id": { "$ref": "#/$defs/eventId" },
+        "sequence": { "$ref": "#/$defs/positiveUint64String" },
+        "wall_time_unix_nano": { "$ref": "#/$defs/positiveUint64String" },
+        "monotonic_time_ns": { "$ref": "#/$defs/uint64String" },
+        "clock_source": { "enum": ["runtime_monotonic", "process_monotonic", "unavailable"] },
+        "execution_id": { "$ref": "#/$defs/boundedIdentifier" },
+        "runtime_window_id": { "$ref": "#/$defs/runtimeWindowId" },
+        "traceparent": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "unit_type", "name", "identity_source"],
+      "properties": {
+        "kind": { "enum": ["http.server", "task", "process", "script", "cron", "background", "unattributed"] },
+        "unit_type": { "enum": ["http_route", "task", "process", "script", "cron", "background", "unattributed"] },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[^?#\\r\\n]+$" },
+        "identity_source": { "enum": ["framework_template", "declared", "generated", "unknown_bucket"] },
+        "http_method": { "type": "string", "pattern": "^[A-Z]{3,12}$" },
+        "route_template": {
+          "oneOf": [
+            { "const": "__unknown__" },
+            { "type": "string", "pattern": "^/[^?#\\r\\n]{0,198}$" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "http.server" } }, "required": ["kind"] },
+          "then": { "required": ["http_method", "route_template"] }
+        }
+      ]
+    },
+    "operationEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/eventCommon" },
+        {
+          "type": "object",
+          "required": ["record_type", "operation", "facts"],
+          "properties": {
+            "record_type": { "const": "operation_event" },
+            "operation": { "$ref": "#/$defs/operation" },
+            "facts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["phase", "outcome"],
+              "properties": {
+                "phase": { "enum": ["start", "finish", "heartbeat"] },
+                "outcome": { "enum": ["ok", "error", "cancelled", "unknown"] },
+                "duration_ns": { "$ref": "#/$defs/uint64String" },
+                "status_code": { "type": ["integer", "null"], "minimum": 0, "maximum": 999 }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "operationSummary": {
+      "allOf": [
+        { "$ref": "#/$defs/eventCommon" },
+        {
+          "type": "object",
+          "required": ["record_type", "operation", "facts"],
+          "properties": {
+            "record_type": { "const": "operation_summary" },
+            "operation": { "$ref": "#/$defs/operation" },
+            "facts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["calls", "errors", "duration_ns_sum", "duration_ns_max"],
+              "properties": {
+                "calls": { "type": "integer", "minimum": 1, "maximum": 1000000000 },
+                "errors": { "type": "integer", "minimum": 0, "maximum": 1000000000 },
+                "duration_ns_sum": { "$ref": "#/$defs/uint64String" },
+                "duration_ns_max": { "$ref": "#/$defs/uint64String" },
+                "concurrency_max": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "value", "source"],
+      "properties": {
+        "unit": {
+          "oneOf": [
+            { "enum": ["input_tokens", "output_tokens", "total_tokens", "cached_input_tokens", "reasoning_tokens", "request_bytes", "response_bytes", "provider_units"] },
+            { "type": "string", "pattern": "^x-[a-z0-9][a-z0-9_.-]{0,62}$" }
+          ]
+        },
+        "value": { "$ref": "#/$defs/uint64String" },
+        "source": { "enum": ["provider_response", "documented_header", "sdk_callback", "declared"] }
+      }
+    },
+    "externalCall": {
+      "allOf": [
+        { "$ref": "#/$defs/eventCommon" },
+        {
+          "type": "object",
+          "required": ["record_type", "facts"],
+          "properties": {
+            "record_type": { "const": "external_call" },
+            "parent_operation_event_id": { "$ref": "#/$defs/eventId" },
+            "facts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["service", "operation", "attempts", "errors", "duration_ns"],
+              "properties": {
+                "provider": { "type": ["string", "null"], "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$" },
+                "service": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$" },
+                "operation": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$" },
+                "model": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$" },
+                "destination_domain": { "type": ["string", "null"], "pattern": "^[a-z0-9][a-z0-9.-]{0,252}[a-z0-9]$" },
+                "attempts": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+                "errors": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+                "duration_ns": { "$ref": "#/$defs/uint64String" },
+                "usage": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/usage" } }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "value", "unit", "temporality", "source", "coverage"],
+      "properties": {
+        "name": { "enum": ["process.cpu.time", "process.memory.rss", "system.energy", "gpu.energy", "gpu.utilization"] },
+        "value": { "type": "string", "pattern": "^(0|[1-9][0-9]{0,30})(\\.[0-9]{1,12})?$" },
+        "unit": { "enum": ["ns", "By", "J", "1"] },
+        "temporality": { "enum": ["cumulative", "delta", "gauge"] },
+        "source": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$" },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "resourceSample": {
+      "allOf": [
+        { "$ref": "#/$defs/eventCommon" },
+        {
+          "type": "object",
+          "required": ["record_type", "facts"],
+          "properties": {
+            "record_type": { "const": "resource_sample" },
+            "parent_operation_event_id": { "$ref": "#/$defs/eventId" },
+            "facts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["scope", "sample_kind", "subject_id", "measurements"],
+              "properties": {
+                "scope": { "enum": ["process", "process_tree", "container", "cgroup", "host", "device"] },
+                "sample_kind": { "enum": ["start", "periodic", "end", "snapshot"] },
+                "subject_id": { "$ref": "#/$defs/boundedIdentifier" },
+                "measurements": { "type": "array", "minItems": 1, "maxItems": 32, "items": { "$ref": "#/$defs/measurement" } }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "adapterHealth": {
+      "allOf": [
+        { "$ref": "#/$defs/eventCommon" },
+        {
+          "type": "object",
+          "required": ["record_type", "facts"],
+          "properties": {
+            "record_type": { "const": "adapter_health" },
+            "facts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["component", "status", "reason_codes", "counters"],
+              "properties": {
+                "component": { "enum": ["adapter", "exporter", "sampler", "collector"] },
+                "status": { "enum": ["ok", "degraded", "error", "disabled"] },
+                "reason_codes": { "type": "array", "maxItems": 32, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{0,63}$" } },
+                "counters": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "dropped_events": { "type": "integer", "minimum": 0 },
+                    "retries": { "type": "integer", "minimum": 0 },
+                    "rejected_events": { "type": "integer", "minimum": 0 },
+                    "queue_depth": { "type": "integer", "minimum": 0 },
+                    "queue_oldest_age_ms": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}
+
