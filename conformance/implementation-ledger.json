@@ -1,0 +1,36 @@
+{
+  "schema_name": "netgreener.node_implementation_ledger.v1",
+  "schema_version": 1,
+  "implementation_id": "netgreener-node-runtime",
+  "implementation_version_source": "package.json#version",
+  "production_entrypoint": "src/index.ts",
+  "source_revision_binding": "The shared runner records the exact clean consumer Git HEAD together with this tracked ledger digest.",
+  "production_sources": [
+    "src/aggregator.ts",
+    "src/config.ts",
+    "src/contract/index.ts",
+    "src/contract/validate.ts",
+    "src/express.ts",
+    "src/index.ts",
+    "src/runtime.ts",
+    "src/types.ts",
+    "src/uploader.ts",
+    "src/windowId.ts"
+  ],
+  "tck_action_boundaries": [
+    {
+      "action_id": "observation.validate",
+      "action_version": "1.0.0",
+      "production_export": "validateObservationEnvelope",
+      "production_module": null,
+      "status": "not_implemented"
+    },
+    {
+      "action_id": "delivery.classify",
+      "action_version": "1.0.0",
+      "production_export": "classifyObservationDelivery",
+      "production_module": null,
+      "status": "not_implemented"
+    }
+  ]
+}

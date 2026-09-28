@@ -1,0 +1,137 @@
+{
+  "name": "@netgreener/runtime",
+  "version": "0.1.6",
+  "description": "NetGreener Node.js Runtime beta — thin adapter uploading RunSessions to existing api_server.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "netgreener": "./dist/cli/netgreener.js",
+    "netgreener-analyze": "./dist/analyze/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./contract": {
+      "types": "./dist/contract/index.d.ts",
+      "import": "./dist/contract/index.js"
+    },
+    "./express": {
+      "types": "./dist/express.d.ts",
+      "import": "./dist/express.js"
+    },
+    "./fastify": {
+      "types": "./dist/fastify.d.ts",
+      "import": "./dist/fastify.js"
+    },
+    "./nest": {
+      "types": "./dist/nest.d.ts",
+      "import": "./dist/nest.js"
+    },
+    "./analyze": {
+      "types": "./dist/analyze/index.d.ts",
+      "import": "./dist/analyze/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/tests",
+    "!dist/tests/**",
+    "fixtures",
+    "examples",
+    "README.md",
+    "TUTORIAL.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-contract-assets.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node scripts/run-tests.mjs && npm run conformance:test",
+    "conformance:test": "node --test conformance/tck-adapter.test.mjs && node scripts/validate-contract-integration.mjs",
+    "conformance:check": "npm run build && npm run conformance:test",
+    "conformance:run": "npm run conformance:check && node scripts/run-contract-conformance.mjs",
+    "example:dry-run": "npm run build && node examples/express-dry-run.mjs",
+    "example:dogfood-tenant": "npm run build && node examples/tenant-dogfood.mjs",
+    "example:bullmq-live-smoke": "npm run build && node examples/bullmq-live-smoke.mjs",
+    "example:bullmq-mp3-gate": "npm run build && node examples/bullmq-mp3-worker-gate.mjs",
+    "example:process-mp3-gate": "npm run build && node examples/process-mp3-restart-gate.mjs",
+    "example:analyze-manifest": "npm run build && node examples/analyze-manifest.mjs",
+    "example:analyze-smoke": "npm run build && node scripts/analyze-smoke.mjs",
+    "example:analyze-cli": "npm run build && node dist/analyze/cli.js",
+    "example:analyze-cli-smoke": "npm run build && node scripts/analyze-cli-smoke.mjs",
+    "example:cli-smoke": "npm run build && node scripts/cli-smoke.mjs",
+    "example:pack-smoke": "npm run build && node scripts/pack-smoke.mjs",
+    "example:production-prep-smoke": "npm run build && node scripts/production-prep-smoke.mjs",
+    "example:publish-prep": "npm run build && node scripts/publish-prep.mjs",
+    "example:sbom-prep": "node scripts/sbom-prep.mjs",
+    "example:push-github-public": "node scripts/push-github-public.mjs",
+    "example:push-github-release": "node scripts/push-github-public.mjs --push-release-tag",
+    "example:retain-dry-run": "npm run build && node examples/retain-dry-run.mjs",
+    "example:dry-run-artifact-smoke": "npm run build && node scripts/dry-run-artifact-smoke.mjs",
+    "test:observation": "npm run build && node --test conformance/observation-v1.test.mjs"
+  },
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NetGreener/netgreener-runtime.git"
+  },
+  "homepage": "https://netgreener.com",
+  "bugs": {
+    "url": "https://dev.azure.com/nexadeeds/NetGreener/_workitems"
+  },
+  "keywords": [
+    "netgreener",
+    "runtime",
+    "energy",
+    "carbon",
+    "express",
+    "fastify",
+    "observability"
+  ],
+  "license": "UNLICENSED",
+  "private": false,
+  "peerDependencies": {
+    "axios": ">=1",
+    "bullmq": ">=4",
+    "express": ">=4",
+    "fastify": ">=4",
+    "typescript": ">=5"
+  },
+  "peerDependenciesMeta": {
+    "axios": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "bullmq": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "axios": "^1.20.0",
+    "express": "^4.21.2",
+    "fastify": "^5.12.5",
+    "typescript": "^5.7.2",
+    "undici": "^6.28.1"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema_name": "netgreener.observation.dual_view_golden.v1",
+  "contract_status": "observation_source_admitted_draft",
+  "purpose": "Cross-language dual-view projection parity (semantic envelope → protobuf JSON view). Additive validators only; no upload or TCK default flip.",
+  "rules": "project via admitted enum/shape mapping; digest with observation projection canonicalizer (sort keys; omit null; comma-colon JSON)",
+  "semantic_envelope": {
+    "schema_name": "netgreener.observation.v1",
+    "schema_version": 1,
+    "contract_status": "mp0_draft",
+    "batch_id": "bat_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "batch_sequence": "1",
+    "emitted_at": "2026-09-12T15:00:00Z",
+    "source": {
+      "language": "python",
+      "runtime_name": "cpython",
+      "runtime_version": "3.11.9",
+      "adapter_name": "netgreener-runtime",
+      "adapter_version": "0.1.0",
+      "runtime_instance_id": "rti_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "capability_ids": ["CAP-R1"],
+      "deployment_mode": "local"
+    },
+    "routing": {
+      "project_id": 42,
+      "workload_id": "api",
+      "service_name": "api"
+    },
+    "privacy": {
+      "content_capture": "none",
+      "dimension_policy": "allowlist",
+      "route_policy": "template_or_unknown",
+      "dropped_dimension_count": 0
+    },
+    "events": [
+      {
+        "event_id": "evt_cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "sequence": "1",
+        "wall_time_unix_nano": "1787500805000000000",
+        "monotonic_time_ns": "5000000000",
+        "clock_source": "runtime_monotonic",
+        "record_type": "adapter_health",
+        "facts": {
+          "component": "adapter",
+          "status": "ok",
+          "reason_codes": [],
+          "counters": { "queue_depth": 0 }
+        }
+      }
+    ]
+  },
+  "expected_projection_digest": "sha256:c0000c0e7698a55a6907eb3f4d8061e22c95557557006fc5904eacd26a57a41d",
+  "expected_byte_length": 1108
+}
