@@ -1,0 +1,204 @@
+{
+  "$schema": "https://schemas.netgreener.com/contracts/v1/implementation-profile.schema.json",
+  "schema_name": "netgreener.implementation_profile.v1",
+  "schema_version": 1,
+  "profile_id": "nodejs.runtime",
+  "profile_version": "0.1.0",
+  "contract_bundle_id": "sha256:ef9708d1b3e2e2aa7bf11373efbe3c80d822f4c08255d2c50da80d7b73192226",
+  "catalog_version": "1.0.2",
+  "tck_version": "0.3.0",
+  "target_id": "nodejs.runtime",
+  "plane": "runtime",
+  "implementation": {
+    "id": "netgreener-node-runtime",
+    "name": "NetGreener Node.js runtime",
+    "ecosystem": "nodejs",
+    "source_languages": [
+      "javascript",
+      "typescript"
+    ],
+    "repository_url": "https://dev.azure.com/nexadeeds/NetGreener/_git/netgreener_node"
+  },
+  "contracts_lock_path": "netgreener-contracts.lock.json",
+  "verification_environments": [
+    {
+      "environment_id": "nodejs-22.12.0-win32-x64-local",
+      "runtime": "Node.js",
+      "runtime_version": "22.12.0",
+      "toolchain_versions": [
+        "typescript==5.9.3"
+      ],
+      "os": "win32",
+      "architecture": "x64",
+      "deployment_mode": "local",
+      "framework": null
+    },
+    {
+      "environment_id": "nodejs-22.12.0-linux-x64-azure-pipelines",
+      "runtime": "Node.js",
+      "runtime_version": "22.12.0",
+      "toolchain_versions": [
+        "typescript==5.9.3"
+      ],
+      "os": "linux",
+      "architecture": "x64",
+      "deployment_mode": "azure-pipelines",
+      "framework": null
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "CHK-R1.route-template",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R1.unknown-bucket",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R1.calls-errors-duration",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R1.concurrent-context",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R2.task-identity",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R2.process-wrapper",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R2.background-attribution",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R2.signal-exit-preservation",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R3.generic-external",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R3.semantic-usage",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R3.content-free",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R3.retry-streaming",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R4.cpu-rss",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R4.raw-energy-counter",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R4.provenance",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R4.coverage-missing-source",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R5.stable-identities",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R5.exact-replay",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R5.duplicate-conflict",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R5.backoff-recovery",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R5.health-drops",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R6.vm-process",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R6.container",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R6.kubernetes",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R6.ci-job",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-R6.serverless-degraded",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-P1.api-ui",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-P1.tenant-isolation",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-P2.tracked-native-package",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-P2.provenance-sbom",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-P2.upgrade-rollback-docs",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-Q1.shared-tck",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-Q1.failure-chaos",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-Q1.overhead-budget",
+      "applicability": "required"
+    },
+    {
+      "check_id": "CHK-Q1.security-release",
+      "applicability": "required"
+    }
+  ],
+  "runner": {
+    "protocol_version": "1.0.0",
+    "status": "available",
+    "command": [
+      "node",
+      "{adapter_artifact}"
+    ],
+    "adapter": {
+      "id": "netgreener-node-tck-adapter",
+      "version": "0.1.8"
+    },
+    "result_path": "conformance/results/nodejs.runtime.json"
+  }
+}
