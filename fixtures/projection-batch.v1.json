@@ -1,0 +1,9 @@
+{
+  "schema_name": "netgreener.observation.projection_golden.v1",
+  "contract_status": "observation_source_admitted_draft",
+  "fixture": "observation/v1/vectors/projection-batch-document.v1.json",
+  "rules": "sort object keys; preserve array order; omit null; UTF-8 JSON separators comma-colon",
+  "expected_digest": "sha256:9eeb66c0283c03dadae5579274e4b550593d835d4aac3aca7add588d851408b7",
+  "byte_length": 4326,
+  "note": "Document admitted beside this golden; planning bindings fixture remains the historical source. Regenerate when schemas/v1 view is derived from admitted Protobuf."
+}
