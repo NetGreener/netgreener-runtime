@@ -1,0 +1,54 @@
+# N5b module gate on Ubuntu (process-tree + cgroup honesty).
+# Full Node→collector flush dogfood lives in Azure
+# (azure-pipelines-node-runtime-tests.yml job n5b_flush_dogfood) because it
+# needs a sibling netgreener_cli checkout.
+#
+# Does NOT: npm publish, flip EXPORT_MODE, upload to api_server.
+
+name: n5b-linux-gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/cgroupV2.ts"
+      - "src/processTree.ts"
+      - "src/managedCollectorLauncher.ts"
+      - "src/exporter.ts"
+      - "scripts/n5b-linux-gate.mjs"
+      - "scripts/n5b-flush-dogfood.mjs"
+      - "package.json"
+      - ".github/workflows/n5b-linux-gate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/cgroupV2.ts"
+      - "src/processTree.ts"
+      - "src/managedCollectorLauncher.ts"
+      - "src/exporter.ts"
+      - "scripts/n5b-linux-gate.mjs"
+      - "scripts/n5b-flush-dogfood.mjs"
+      - "package.json"
+      - ".github/workflows/n5b-linux-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  module-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install + build
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+      - name: N5b module gate
+        run: npm run example:n5b-linux-gate
