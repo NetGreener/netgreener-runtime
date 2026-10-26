@@ -1,0 +1,62 @@
+# O1/O2 overhead measurement (does not publish)
+#
+# Quiet Linux runner for frozen ≤2% budgets.
+# See Azure-side OVERHEAD_MEASURE.md / OVERHEAD_BUDGET_FREEZE_PROPOSAL.md
+#
+# Does NOT: npm publish, flip EXPORT_MODE, upload to api_server, freeze N10.
+
+name: overhead-measure
+
+on:
+  workflow_dispatch:
+  # Public mirror is force-pushed; path filters often skip those events.
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overhead-measure
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install & build
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+
+      - name: Run O1/O2 overhead measure
+        env:
+          # Defaults match scripts/overhead-measure.mjs (50ms useful work).
+          NETGREENER_OVERHEAD_WORK_MS: "100"
+          NETGREENER_OVERHEAD_ITERS: "200"
+          NETGREENER_OVERHEAD_WARMUP: "40"
+          NETGREENER_OVERHEAD_TRIALS: "5"
+        run: node scripts/overhead-measure.mjs
+
+      - name: Upload overhead artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: overhead-o1-o2
+          path: |
+            artifacts/overhead/SUMMARY.md
+            artifacts/overhead/latest.json
+            artifacts/overhead/overhead-*.json
+          if-no-files-found: warn
+          retention-days: 90

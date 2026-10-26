@@ -1,0 +1,352 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.netgreener.com/contracts/resource/v1/resource-finding.schema.json",
+  "title": "NetGreener resource_finding_v1 (RD1 draft)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "finding_id",
+    "project_id",
+    "evidence_state",
+    "comparison_origin",
+    "lifecycle_status",
+    "verification_outcome",
+    "primary_domain",
+    "mechanism_id",
+    "title",
+    "scope",
+    "lineage"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "resource_finding_v1" },
+    "finding_id": { "type": "string", "minLength": 8, "maxLength": 128 },
+    "project_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "evidence_state": {
+      "enum": ["candidate", "observed", "regression_supported", "causal_supported"]
+    },
+    "comparison_origin": {
+      "enum": ["none", "ci", "production", "benchmark", "manual_experiment"]
+    },
+    "lifecycle_status": {
+      "enum": ["pending_admission", "open", "acknowledged", "resolved", "dismissed", "reopened"]
+    },
+    "verification_outcome": {
+      "enum": [
+        "not_run",
+        "verified_improvement",
+        "no_material_change",
+        "regressed",
+        "inconclusive",
+        "not_applicable",
+        "failed_guardrail"
+      ]
+    },
+    "primary_domain": {
+      "enum": [
+        "compute.cpu",
+        "compute.gpu",
+        "memory.host",
+        "memory.gpu",
+        "storage.io",
+        "network.io",
+        "external_api"
+      ]
+    },
+    "secondary_domains": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "compute.cpu",
+          "compute.gpu",
+          "memory.host",
+          "memory.gpu",
+          "storage.io",
+          "network.io",
+          "external_api"
+        ]
+      }
+    },
+    "mechanism_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]{2,63}$" },
+    "title": { "type": "string", "minLength": 8, "maxLength": 200 },
+    "scope": { "$ref": "#/$defs/scope" },
+    "workload": { "$ref": "#/$defs/workload" },
+    "observed": { "$ref": "#/$defs/metricPoint" },
+    "baseline": { "$ref": "#/$defs/baseline" },
+    "impact": { "$ref": "#/$defs/impact" },
+    "materiality": { "$ref": "#/$defs/materiality" },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidenceItem" }
+    },
+    "confidence": { "$ref": "#/$defs/confidence" },
+    "optimization": { "$ref": "#/$defs/optimization" },
+    "lineage": { "$ref": "#/$defs/lineage" },
+    "compatibility_fingerprint": { "$ref": "#/$defs/compatibilityFingerprint" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "evidence_state": { "const": "candidate" } } },
+      "then": {
+        "properties": {
+          "comparison_origin": { "const": "none" },
+          "lifecycle_status": { "const": "pending_admission" },
+          "verification_outcome": { "const": "not_run" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_state": { "enum": ["regression_supported", "causal_supported"] }
+        }
+      },
+      "then": {
+        "required": ["workload", "observed", "baseline", "impact", "materiality", "evidence", "confidence", "optimization"]
+      }
+    }
+  ],
+  "$defs": {
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "language"],
+      "properties": {
+        "kind": { "enum": ["service_unit", "task", "process", "ci_step", "script", "function"] },
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "language": { "type": "string", "pattern": "^[a-z][a-z0-9+-]{0,31}$" },
+        "runtime": { "type": "string", "maxLength": 80 },
+        "release_id": { "type": "string", "maxLength": 120 },
+        "git_sha": { "type": "string", "maxLength": 64 },
+        "source_locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path"],
+            "properties": {
+              "path": { "type": "string", "maxLength": 512 },
+              "start_line": { "type": "integer", "minimum": 1 },
+              "end_line": { "type": "integer", "minimum": 1 },
+              "symbol": { "type": "string", "maxLength": 120 }
+            }
+          }
+        }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["functional_unit"],
+      "properties": {
+        "functional_unit": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "units": { "type": "number", "minimum": 0 },
+        "input_fingerprint": { "type": "string", "maxLength": 128 },
+        "quality_guards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["metric", "operator", "threshold", "passed"],
+            "properties": {
+              "metric": { "type": "string" },
+              "operator": { "enum": [">=", "<=", "=="] },
+              "threshold": { "type": "number" },
+              "observed": { "type": ["number", "null"] },
+              "passed": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "metricPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "value", "unit"],
+      "properties": {
+        "metric": { "type": "string", "minLength": 1 },
+        "value": { "type": "number" },
+        "unit": { "type": "string", "minLength": 1 },
+        "window_start": { "type": "string", "format": "date-time" },
+        "window_end": { "type": "string", "format": "date-time" }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit", "sample_count", "cohort_key", "statistic"],
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string" },
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "cohort_key": { "type": "string", "minLength": 8 },
+        "statistic": { "enum": ["median", "mean", "p50", "robust_mean"] },
+        "uncertainty": { "$ref": "#/$defs/uncertainty" }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "low", "high", "unit"],
+      "properties": {
+        "method": { "type": "string" },
+        "low": { "type": "number" },
+        "high": { "type": "number" },
+        "unit": { "type": "string" }
+      }
+    },
+    "impact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["impact_state"],
+      "properties": {
+        "normalized_delta": { "$ref": "#/$defs/metricPoint" },
+        "projected_excess": { "$ref": "#/$defs/metricPoint" },
+        "relative_delta_fraction": { "type": ["number", "null"] },
+        "recoverable_low": { "type": ["number", "null"] },
+        "recoverable_likely": { "type": ["number", "null"] },
+        "recoverable_high": { "type": ["number", "null"] },
+        "cost_usd": { "type": ["number", "null"] },
+        "energy_kwh": { "type": ["number", "null"] },
+        "impact_state": { "enum": ["unknown", "modeled", "measured"] }
+      }
+    },
+    "materiality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "decision"],
+      "properties": {
+        "policy_id": { "type": "string" },
+        "absolute_floor_passed": { "type": "boolean" },
+        "relative_floor_passed": { "type": "boolean" },
+        "sample_floor_passed": { "type": "boolean" },
+        "decision": { "enum": ["pending", "material", "not_material", "abstain"] }
+      }
+    },
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "kind", "captured_at", "value_state"],
+      "properties": {
+        "evidence_id": { "type": "string", "minLength": 8 },
+        "kind": {
+          "enum": [
+            "source",
+            "observation",
+            "profile",
+            "ci_comparison",
+            "runtime_baseline",
+            "provider_usage",
+            "billing",
+            "benchmark",
+            "user_disposition"
+          ]
+        },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id"],
+          "properties": {
+            "kind": { "type": "string" },
+            "id": { "type": "string" }
+          }
+        },
+        "temporality": { "enum": ["delta", "cumulative", "instant"] },
+        "interval": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        },
+        "observation_ids": { "type": "array", "items": { "type": "string" } },
+        "metric": { "type": "string" },
+        "value": { "type": "number" },
+        "unit": { "type": "string" },
+        "aggregation": { "type": "string" },
+        "functional_unit": { "type": "string" },
+        "method": { "type": "string" },
+        "method_version": { "type": "string" },
+        "evidence_grade": { "type": "string" },
+        "coverage_fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+        "dropped_event_state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["dropped", "count"],
+          "properties": {
+            "dropped": { "type": "boolean" },
+            "count": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "uncertainty": { "$ref": "#/$defs/uncertainty" },
+        "value_state": { "enum": ["observed", "estimated", "derived", "missing"] }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detection_confidence",
+        "attribution_confidence",
+        "measurement_confidence",
+        "comparison_confidence",
+        "optimization_confidence",
+        "causal_confidence"
+      ],
+      "properties": {
+        "detection_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "attribution_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "measurement_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "comparison_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "optimization_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "causal_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reason_codes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "optimization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hypothesis_id", "summary", "risk"],
+      "properties": {
+        "hypothesis_id": { "type": "string", "minLength": 4 },
+        "summary": { "type": "string", "minLength": 8, "maxLength": 400 },
+        "verification_plan": { "type": "object" },
+        "risk": { "enum": ["low", "medium", "high"] }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detector_id", "detector_version", "policy_version"],
+      "properties": {
+        "detector_id": { "type": "string", "minLength": 1 },
+        "detector_version": { "type": "string", "minLength": 1 },
+        "policy_version": { "type": "string", "minLength": 1 },
+        "observation_ids": { "type": "array", "items": { "type": "string" } },
+        "benchmark_result_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "compatibilityFingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language": { "type": "string" },
+        "runtime": { "type": "string" },
+        "framework": { "type": "string" },
+        "dependency_lock_digest": { "type": "string" },
+        "hardware_model": { "type": "string" },
+        "cpu_quota": { "type": "string" },
+        "memory_limit": { "type": "string" },
+        "workload_id": { "type": "string" },
+        "functional_unit": { "type": "string" },
+        "environment": { "type": "string" },
+        "release_id": { "type": "string" },
+        "ci_workflow_sha": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schemas.netgreener.com/contracts/v1/contracts-lock.schema.json",
+  "schema_name": "netgreener.contracts_lock.v1",
+  "schema_version": 1,
+  "source": {
+    "repository_url": "https://dev.azure.com/nexadeeds/NetGreener/_git/netgreener_contracts",
+    "source_revision": "28b1320990ceccefbf5867c1bb5a6fb275d0c1df"
+  },
+  "bundle": {
+    "manifest_path": "generated/bundle/v1/contract-bundle.json",
+    "bundle_id": "sha256:ef9708d1b3e2e2aa7bf11373efbe3c80d822f4c08255d2c50da80d7b73192226",
+    "manifest_digest": "sha256:af59c3c1e8e9f53e85f81ce7394bcc417df8cfde2bd1bd2bc7860c5ae14fe0c2",
+    "bundle_version": "0.2.0",
+    "catalog_version": "1.0.2",
+    "tck_version": "0.3.0",
+    "runner_protocol_version": "1.0.0"
+  }
+}
