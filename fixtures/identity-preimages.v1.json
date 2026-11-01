@@ -1,0 +1,42 @@
+{
+  "schema_name": "netgreener.observation.identity_preimages.v1",
+  "contract_status": "observation_source_admitted_draft",
+  "algorithm": "sha256(length_prefixed(domain, components...)); 4-byte big-endian lengths",
+  "cases": [
+    {
+      "name": "runtime_instance_fixed_nonce",
+      "domain": "netgreener.observation.v1/runtime-instance",
+      "components": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "expected_id": "rti_e83199561ca1184e69dd68079f3859da717e38033711b63fde959422168ebd5e"
+    },
+    {
+      "name": "event_seq_1",
+      "domain": "netgreener.observation.v1/event",
+      "components": [
+        "rti_e83199561ca1184e69dd68079f3859da717e38033711b63fde959422168ebd5e",
+        "1"
+      ],
+      "expected_id": "evt_05e147d2c9270fb09b1b9caf05922d3fd18face18c7c3bc5c6d21af3df8fa1fc"
+    },
+    {
+      "name": "batch_seq_1",
+      "domain": "netgreener.observation.v1/batch",
+      "components": [
+        "rti_e83199561ca1184e69dd68079f3859da717e38033711b63fde959422168ebd5e",
+        "1"
+      ],
+      "expected_id": "bat_fd9c302bcb34cc281e44766798e0043577cb691dba223e63e99092d045931829"
+    },
+    {
+      "name": "runtime_window_close_1",
+      "domain": "netgreener.observation.v1/runtime-window",
+      "components": [
+        "rti_eb023154e6299b5e607a3e467fcd96eaf844730fe4fcf3a3543580b2e1f7185e",
+        "1"
+      ],
+      "expected_id": "rtw_22e5fb5c15ef2a50f6d7fe742cd62fe7ca61e53bc40606aa4a90b952556e1e64"
+    }
+  ]
+}
