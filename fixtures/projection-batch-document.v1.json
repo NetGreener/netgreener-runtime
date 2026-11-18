@@ -1,0 +1,170 @@
+{
+  "protocol_major": 1,
+  "protocol_minor": 1,
+  "batch_id": "bat_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "batch_sequence": "9007199254740993",
+  "emitted_at": "2026-09-13T12:00:01Z",
+  "source": {
+    "language": "python",
+    "runtime_name": "cpython",
+    "runtime_version": "3.11.0",
+    "adapter_name": "fixture-adapter",
+    "adapter_version": "0.0.0",
+    "runtime_instance_id": "rti_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "capability_ids": [
+      "CAP-R1",
+      "CAP-R2",
+      "CAP-R3",
+      "CAP-R4",
+      "CAP-R5",
+      "CAP-R6"
+    ],
+    "deployment_mode": "DEPLOYMENT_MODE_LOCAL"
+  },
+  "routing": {
+    "organization_id": "9007199254740992",
+    "project_id": "9007199254740993",
+    "workload_id": "fixture-workload",
+    "service_name": "fixture-service",
+    "environment": "fixture"
+  },
+  "privacy": {
+    "content_capture": "CONTENT_CAPTURE_NONE",
+    "dimension_policy": "DIMENSION_POLICY_ALLOWLIST",
+    "route_policy": "ROUTE_POLICY_TEMPLATE_OR_UNKNOWN",
+    "dropped_dimension_count": "0"
+  },
+  "window": {
+    "runtime_window_id": "rtw_cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "state": "WINDOW_STATE_CLOSED",
+    "start_time": "2026-09-13T12:00:00Z",
+    "end_time": "2026-09-13T12:00:01Z"
+  },
+  "events": [
+    {
+      "event_id": "evt_1111111111111111111111111111111111111111111111111111111111111111",
+      "sequence": "1",
+      "wall_time_unix_nano": "1789300800001000000",
+      "monotonic_time_ns": "1001000000",
+      "clock_source": "CLOCK_SOURCE_PROCESS_MONOTONIC",
+      "clock_epoch_id": "fixture-clock-1",
+      "execution_id": "fixture-execution-1",
+      "operation_event": {
+        "operation": {
+          "kind": "OPERATION_KIND_TASK",
+          "unit_type": "OPERATION_UNIT_TASK",
+          "name": "fixture.task.live",
+          "identity_source": "IDENTITY_SOURCE_DECLARED"
+        },
+        "phase": "OPERATION_PHASE_FINISH",
+        "outcome": "OUTCOME_OK",
+        "duration_ns": "0"
+      }
+    },
+    {
+      "event_id": "evt_2222222222222222222222222222222222222222222222222222222222222222",
+      "sequence": "2",
+      "wall_time_unix_nano": "1789300800002000000",
+      "monotonic_time_ns": "1002000000",
+      "clock_source": "CLOCK_SOURCE_PROCESS_MONOTONIC",
+      "clock_epoch_id": "fixture-clock-1",
+      "runtime_window_id": "rtw_cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "operation_summary": {
+        "operation": {
+          "kind": "OPERATION_KIND_TASK",
+          "unit_type": "OPERATION_UNIT_TASK",
+          "name": "fixture.task.summary",
+          "identity_source": "IDENTITY_SOURCE_DECLARED"
+        },
+        "calls": "23",
+        "errors": "0",
+        "duration_ns_sum": "1000000000",
+        "duration_ns_max": "100000000",
+        "concurrency_max": 4
+      }
+    },
+    {
+      "event_id": "evt_3333333333333333333333333333333333333333333333333333333333333333",
+      "sequence": "3",
+      "wall_time_unix_nano": "1789300800003000000",
+      "monotonic_time_ns": "1003000000",
+      "clock_source": "CLOCK_SOURCE_PROCESS_MONOTONIC",
+      "clock_epoch_id": "fixture-clock-1",
+      "external_call": {
+        "parent_operation_event_id": "evt_1111111111111111111111111111111111111111111111111111111111111111",
+        "provider": "fixture-provider",
+        "service": "fixture-api",
+        "operation": "fixture.operation",
+        "destination_domain": "api.example.invalid",
+        "attempts": "2",
+        "errors": "1",
+        "duration_ns": "80000",
+        "usage": [
+          {
+            "unit": "input_tokens",
+            "value": "0",
+            "source": "USAGE_SOURCE_PROVIDER_RESPONSE"
+          },
+          {
+            "unit": "output_tokens",
+            "value": "18446744073709551615",
+            "source": "USAGE_SOURCE_PROVIDER_RESPONSE"
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "evt_4444444444444444444444444444444444444444444444444444444444444444",
+      "sequence": "4",
+      "wall_time_unix_nano": "1789300800004000000",
+      "monotonic_time_ns": "1004000000",
+      "clock_source": "CLOCK_SOURCE_PROCESS_MONOTONIC",
+      "clock_epoch_id": "fixture-clock-1",
+      "resource_sample": {
+        "scope": "RESOURCE_SCOPE_DEVICE",
+        "sample_kind": "SAMPLE_KIND_SNAPSHOT",
+        "subject_id": "fixture-gpu-0",
+        "measurements": [
+          {
+            "name": "MEASUREMENT_NAME_GPU_ENERGY",
+            "value": "0.125000000001",
+            "unit": "MEASUREMENT_UNIT_J",
+            "temporality": "TEMPORALITY_DELTA",
+            "source": "fixture-device-counter",
+            "coverage": "0.999999999999",
+            "counter_epoch_id": "fixture-counter-1"
+          },
+          {
+            "name": "MEASUREMENT_NAME_GPU_UTILIZATION",
+            "value": "0",
+            "unit": "MEASUREMENT_UNIT_RATIO",
+            "temporality": "TEMPORALITY_GAUGE",
+            "source": "fixture-device-gauge",
+            "coverage": "1"
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "evt_5555555555555555555555555555555555555555555555555555555555555555",
+      "sequence": "5",
+      "wall_time_unix_nano": "1789300800005000000",
+      "monotonic_time_ns": "1005000000",
+      "clock_source": "CLOCK_SOURCE_PROCESS_MONOTONIC",
+      "clock_epoch_id": "fixture-clock-1",
+      "adapter_health": {
+        "component": "HEALTH_COMPONENT_ADAPTER",
+        "status": "HEALTH_STATUS_DEGRADED",
+        "reason_codes": [
+          "FIXTURE_COUNTER_LIMIT"
+        ],
+        "counters": {
+          "dropped_events": "18446744073709551615",
+          "retries": "0",
+          "queue_depth": "0"
+        }
+      }
+    }
+  ],
+  "experiment_note": "fixture-all-records"
+}
