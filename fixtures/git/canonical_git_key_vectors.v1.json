@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "description": "OP1 canonical git keys — CLI, SDK, Node, and VSCE must agree on every vector.",
+  "vectors": [
+    {
+      "in": "https://github.com/Org/NetGreener.git",
+      "out": "github.com/org/netgreener",
+      "note": "github https"
+    },
+    {
+      "in": "git@github.com:Org/NetGreener.git",
+      "out": "github.com/org/netgreener",
+      "note": "github ssh"
+    },
+    {
+      "in": "http://github.com/Org/NetGreener",
+      "out": "github.com/org/netgreener",
+      "note": "github http upgrade"
+    },
+    {
+      "in": "https://gitlab.com/Group/Sub/Repo.git",
+      "out": "gitlab.com/group/sub/repo",
+      "note": "gitlab nested path"
+    },
+    {
+      "in": "https://dev.azure.com/Contoso/Payments/_git/payments-api",
+      "out": "dev.azure.com/contoso/payments/payments-api",
+      "note": "ado https three-part"
+    },
+    {
+      "in": "https://dev.azure.com/Contoso/Payments/_git/payments-api.git",
+      "out": "dev.azure.com/contoso/payments/payments-api",
+      "note": "ado https with .git"
+    },
+    {
+      "in": "https://user:pat@dev.azure.com/Contoso/Payments/_git/payments-api",
+      "out": "dev.azure.com/contoso/payments/payments-api",
+      "note": "ado https strip credentials"
+    },
+    {
+      "in": "https://Contoso.visualstudio.com/Payments/_git/payments-api",
+      "out": "dev.azure.com/contoso/payments/payments-api",
+      "note": "ado visualstudio.com host"
+    },
+    {
+      "in": "git@ssh.dev.azure.com:v3/Contoso/Payments/payments-api",
+      "out": "dev.azure.com/contoso/payments/payments-api",
+      "note": "ado ssh v3"
+    },
+    {
+      "in": "ssh://git@ssh.dev.azure.com/v3/Contoso/Payments/payments-api",
+      "out": "dev.azure.com/contoso/payments/payments-api",
+      "note": "ado ssh:// v3"
+    },
+    {
+      "in": "",
+      "out": null,
+      "note": "empty"
+    },
+    {
+      "in": "   ",
+      "out": null,
+      "note": "whitespace"
+    }
+  ]
+}

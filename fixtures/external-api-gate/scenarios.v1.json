@@ -1,0 +1,617 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "name": "token_boundary",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 1500
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "token_exceeded",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 1499
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "input_exceeded",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_input_tokens": 999
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "output_boundary",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_output_tokens": 500
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "calls_boundary",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 2
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "zero_call_budget",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 0
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "cost_boundary",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 0.02
+      },
+      "passed": true,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.01,
+          "cost_per_1k_output_tokens_usd": 0.02
+        }
+      ]
+    },
+    {
+      "name": "cost_exceeded",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 0.019
+      },
+      "passed": false,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.01,
+          "cost_per_1k_output_tokens_usd": 0.02
+        }
+      ]
+    },
+    {
+      "name": "missing_telemetry",
+      "providers": null,
+      "budgets": {
+        "max_total_tokens": 9999
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "empty_telemetry",
+      "providers": [],
+      "budgets": {
+        "max_external_api_calls": 5
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "partial_token_coverage",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 1
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 9999
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "legacy_coverage_unknown",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 9999
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "calls_do_not_require_tokens",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 2
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "missing_usage_cost",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 999
+      },
+      "passed": false,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.01,
+          "cost_per_1k_output_tokens_usd": 0.02
+        }
+      ]
+    },
+    {
+      "name": "unpriced_vendor",
+      "providers": [
+        {
+          "provider_key": "new.example",
+          "calls": 1
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 999
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "ocr_calls",
+      "providers": [
+        {
+          "provider_key": "aws_textract",
+          "calls": 3
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 3,
+        "external_provider": "aws_textract"
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "ocr_cost",
+      "providers": [
+        {
+          "provider_key": "aws_textract",
+          "calls": 3
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 0.0045
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "ocr_does_not_need_tokens",
+      "providers": [
+        {
+          "provider_key": "aws_textract",
+          "calls": 3
+        },
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 1500
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "filter_provider",
+      "providers": [
+        {
+          "provider_key": "aws_textract",
+          "calls": 3
+        },
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 2,
+        "external_provider": "openai"
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "missing_provider",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 99,
+        "external_provider": "aws_textract"
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "model_not_double_counted",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2,
+          "by_model": [
+            {
+              "model": "test-model",
+              "calls": 2,
+              "input_tokens": 1000,
+              "output_tokens": 500,
+              "calls_with_usage": 2
+            }
+          ]
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 1500,
+        "max_external_api_calls": 2,
+        "max_external_cost_usd": 0.02
+      },
+      "passed": true,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.01,
+          "cost_per_1k_output_tokens_usd": 0.02
+        }
+      ]
+    },
+    {
+      "name": "model_override",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2,
+          "by_model": [
+            {
+              "model": "test-model",
+              "calls": 2,
+              "input_tokens": 1000,
+              "output_tokens": 500,
+              "calls_with_usage": 2
+            }
+          ]
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 0.002
+      },
+      "passed": true,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.01,
+          "cost_per_1k_output_tokens_usd": 0.02
+        },
+        {
+          "provider_key": "openai::test-model",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.001,
+          "cost_per_1k_output_tokens_usd": 0.002
+        }
+      ]
+    },
+    {
+      "name": "unrounded_small_cost",
+      "providers": [
+        {
+          "provider_key": "aws_textract",
+          "calls": 1
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 0
+      },
+      "passed": false,
+      "catalog": [
+        {
+          "provider_key": "aws_textract",
+          "category": "document_ai",
+          "cost_per_call_usd": 1e-06
+        }
+      ]
+    },
+    {
+      "name": "invalid_counter",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": -1,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 99
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "invalid_counter_type",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": "bad",
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_api_calls": 99
+      },
+      "passed": false,
+      "catalog": []
+    },
+    {
+      "name": "interrupted",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 9999
+      },
+      "passed": false,
+      "catalog": [],
+      "interrupted": true
+    },
+    {
+      "name": "model_residual_pricing",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2,
+          "by_model": [
+            {
+              "model": "test-model",
+              "calls": 1,
+              "input_tokens": 300,
+              "output_tokens": 200,
+              "calls_with_usage": 1
+            }
+          ]
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 0.0137,
+        "max_external_api_calls": 2
+      },
+      "passed": true,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.01,
+          "cost_per_1k_output_tokens_usd": 0.02
+        },
+        {
+          "provider_key": "openai::test-model",
+          "category": "llm",
+          "cost_per_call_usd": 0.01,
+          "cost_per_1k_input_tokens_usd": 0.001,
+          "cost_per_1k_output_tokens_usd": 0.002
+        }
+      ]
+    },
+    {
+      "name": "filter_model",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2,
+          "by_model": [
+            {
+              "model": "test-model",
+              "calls": 1,
+              "input_tokens": 300,
+              "output_tokens": 200,
+              "calls_with_usage": 1
+            }
+          ]
+        }
+      ],
+      "budgets": {
+        "external_provider": "openai::test-model",
+        "max_total_tokens": 500,
+        "max_external_api_calls": 1
+      },
+      "passed": true,
+      "catalog": []
+    },
+    {
+      "name": "zero_price_is_unknown",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2
+        }
+      ],
+      "budgets": {
+        "max_external_cost_usd": 10
+      },
+      "passed": false,
+      "catalog": [
+        {
+          "provider_key": "openai",
+          "category": "llm",
+          "cost_per_call_usd": 0,
+          "cost_per_1k_input_tokens_usd": 0,
+          "cost_per_1k_output_tokens_usd": 0
+        }
+      ]
+    },
+    {
+      "name": "invalid_model_coverage",
+      "providers": [
+        {
+          "provider_key": "openai",
+          "calls": 2,
+          "input_tokens": 1000,
+          "output_tokens": 500,
+          "calls_with_usage": 2,
+          "by_model": [
+            {
+              "model": "test-model",
+              "calls": 2,
+              "input_tokens": 1000,
+              "output_tokens": 500
+            }
+          ]
+        }
+      ],
+      "budgets": {
+        "max_total_tokens": 9999
+      },
+      "passed": false,
+      "catalog": []
+    }
+  ]
+}
