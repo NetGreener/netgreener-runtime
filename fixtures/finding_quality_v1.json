@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "immediate_function",
+      "python": "for item in items:\n    model = (lambda: load_model('same'))()\n",
+      "javascript": "for (const item of items) { const model = (() => loadModel('same'))(); }",
+      "model_load": true,
+      "inference": false
+    },
+    {
+      "id": "cached_module_import",
+      "python": "for item in items:\n    import torch\n",
+      "javascript": "for (const item of items) { const tf = require('@tensorflow/tfjs'); }",
+      "model_load": false,
+      "inference": false
+    },
+    {
+      "id": "distinct_file_inputs",
+      "python": "for path in paths:\n    data = open(path)\n",
+      "javascript": "for (const path of paths) { const data = readFileSync(path); }",
+      "model_load": false,
+      "inference": false,
+      "file_reads": false
+    },
+    {
+      "id": "invariant_file_input",
+      "python": "for item in items:\n    data = open('same.json')\n",
+      "javascript": "for (const item of items) { const data = readFileSync('same.json'); }",
+      "model_load": false,
+      "inference": false,
+      "file_reads": true
+    },
+    {
+      "id": "after_loop",
+      "python": "for item in items:\n    consume(item)\nmodel = load_model('model.bin')\nmodel.predict(data)\n",
+      "javascript": "for (const item of items) { consume(item); }\nconst model = loadModel('model.bin');\nmodel.predict(data);",
+      "model_load": false,
+      "inference": false
+    },
+    {
+      "id": "repeated_invariant_load",
+      "python": "for item in items:\n    model = load_model('model.bin')\n    model.predict(item)\n",
+      "javascript": "for (const item of items) {\n const model = loadModel('model.bin');\n model.predict(item);\n}",
+      "model_load": true,
+      "inference": true
+    },
+    {
+      "id": "deferred_function",
+      "python": "for item in items:\n    def later():\n        model = load_model('model.bin')\n        return model.predict(data)\n    callbacks.append(later)\n",
+      "javascript": "for (const item of items) {\n const later = () => { const model = loadModel('model.bin'); return model.predict(data); };\n callbacks.push(later);\n}",
+      "model_load": false,
+      "inference": false
+    },
+    {
+      "id": "iterator_evaluated_once",
+      "python": "for item in load_model('model.bin'):\n    consume(item)\n",
+      "javascript": "for (const item of loadModel('model.bin')) { consume(item); }",
+      "model_load": false,
+      "inference": false
+    },
+    {
+      "id": "distinct_models",
+      "python": "for model_path in paths:\n    model = load_model(model_path)\n",
+      "javascript": "for (const modelPath of paths) { const model = loadModel(modelPath); }",
+      "model_load": false,
+      "inference": false
+    },
+    {
+      "id": "comments_and_strings",
+      "python": "for item in items:\n    text = 'load_model(\"model.bin\"); model.predict(data)'\n    # load_model('model.bin')\n",
+      "javascript": "for (const item of items) {\n const text = 'loadModel(\"model.bin\"); model.predict(data)';\n // loadModel('model.bin')\n}",
+      "model_load": false,
+      "inference": false
+    },
+    {
+      "id": "single_iteration",
+      "python": "for item in [1]:\n    model = load_model('model.bin')\n    model.predict(data)\n",
+      "javascript": "for (const item of [1]) {\n const model = loadModel('model.bin');\n model.predict(data);\n}",
+      "model_load": false,
+      "inference": false
+    }
+  ]
+}

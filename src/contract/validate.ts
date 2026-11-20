@@ -1,0 +1,406 @@
+import type {
+  ExternalApiV0,
+  MeasurementProvenance,
+  RuntimeSessionMetadata,
+  ServiceRuntimeV0,
+} from '../types.js'
+import { validateExecutionContext } from '../requestContext.js'
+
+export type ContractIssue = {
+  path: string
+  message: string
+}
+
+export type ContractResult = {
+  ok: boolean
+  issues: ContractIssue[]
+}
+
+function issue(path: string, message: string): ContractIssue {
+  return { path, message }
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+type NumberRequirements = {
+  nonNegative?: boolean
+  integer?: boolean
+  maximum?: number
+}
+
+function requireNumber(
+  obj: Record<string, unknown>,
+  key: string,
+  path: string,
+  issues: ContractIssue[],
+  requirements: NumberRequirements = {},
+) {
+  const value = obj[key]
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    issues.push(issue(`${path}.${key}`, 'expected number'))
+    return
+  }
+  if (requirements.nonNegative && value < 0) {
+    issues.push(issue(`${path}.${key}`, 'expected non-negative number'))
+  }
+  if (requirements.integer && !Number.isSafeInteger(value)) {
+    issues.push(issue(`${path}.${key}`, 'expected safe integer'))
+  }
+  if (requirements.maximum !== undefined && value > requirements.maximum) {
+    issues.push(issue(`${path}.${key}`, `expected number at most ${requirements.maximum}`))
+  }
+}
+
+function optionalNumber(
+  obj: Record<string, unknown>,
+  key: string,
+  path: string,
+  issues: ContractIssue[],
+  requirements: NumberRequirements = {},
+) {
+  if (obj[key] !== undefined) {
+    requireNumber(obj, key, path, issues, requirements)
+  }
+}
+
+function errorsDoNotExceedCalls(
+  obj: Record<string, unknown>,
+  path: string,
+  issues: ContractIssue[],
+) {
+  if (
+    typeof obj.calls === 'number' &&
+    Number.isFinite(obj.calls) &&
+    typeof obj.errors === 'number' &&
+    Number.isFinite(obj.errors) &&
+    obj.errors > obj.calls
+  ) {
+    issues.push(issue(`${path}.errors`, 'must not exceed calls'))
+  }
+}
+
+function requireString(obj: Record<string, unknown>, key: string, path: string, issues: ContractIssue[]) {
+  if (typeof obj[key] !== 'string' || !(obj[key] as string).trim()) {
+    issues.push(issue(`${path}.${key}`, 'expected non-empty string'))
+  }
+}
+
+/** Validate the legacy Python-compatible v0 scaffold. MP0 remains the authority. */
+export function validateServiceRuntimeV0(value: unknown, path = 'service_runtime_v0'): ContractResult {
+  const issues: ContractIssue[] = []
+  if (!isObject(value)) {
+    return { ok: false, issues: [issue(path, 'expected object')] }
+  }
+  requireString(value, 'collector', path, issues)
+  requireNumber(value, 'window_seconds', path, issues, { nonNegative: true })
+  requireString(value, 'attribution', path, issues)
+  requireString(value, 'accuracy', path, issues)
+  if (!Array.isArray(value.units)) {
+    issues.push(issue(`${path}.units`, 'expected array'))
+  } else {
+    value.units.forEach((unit, index) => {
+      const up = `${path}.units[${index}]`
+      if (!isObject(unit)) {
+        issues.push(issue(up, 'expected object'))
+        return
+      }
+      requireString(unit, 'service_unit', up, issues)
+      requireString(unit, 'unit_type', up, issues)
+      requireNumber(unit, 'calls', up, issues, { nonNegative: true, integer: true })
+      requireNumber(unit, 'errors', up, issues, { nonNegative: true, integer: true })
+      errorsDoNotExceedCalls(unit, up, issues)
+      requireNumber(unit, 'cpu_seconds_total', up, issues, { nonNegative: true })
+      requireNumber(unit, 'energy_kwh', up, issues, { nonNegative: true })
+      requireNumber(unit, 'carbon_g', up, issues, { nonNegative: true })
+      optionalNumber(unit, 'peak_rss_kb_max', up, issues, { nonNegative: true })
+      optionalNumber(unit, 'cpu_percent_hours', up, issues, { nonNegative: true })
+      optionalNumber(unit, 'ram_gb_hours', up, issues, { nonNegative: true })
+      optionalNumber(unit, 'process_gpu_hours', up, issues, { nonNegative: true })
+      if (!isObject(unit.duration_ms)) {
+        issues.push(issue(`${up}.duration_ms`, 'expected object'))
+      } else {
+        requireNumber(unit.duration_ms, 'avg', `${up}.duration_ms`, issues, {
+          nonNegative: true,
+        })
+        requireNumber(unit.duration_ms, 'max', `${up}.duration_ms`, issues, {
+          nonNegative: true,
+        })
+      }
+    })
+  }
+  if (value.allocation_reconciliation_v0 !== undefined) {
+    const reconciliationPath = `${path}.allocation_reconciliation_v0`
+    if (!isObject(value.allocation_reconciliation_v0)) {
+      issues.push(issue(reconciliationPath, 'expected object'))
+    } else {
+      const reconciliation = value.allocation_reconciliation_v0
+      requireNumber(reconciliation, 'schema_version', reconciliationPath, issues, {
+        nonNegative: true,
+        integer: true,
+      })
+      requireNumber(reconciliation, 'window_energy_kwh', reconciliationPath, issues, {
+        nonNegative: true,
+      })
+      requireNumber(reconciliation, 'allocated_energy_kwh', reconciliationPath, issues, {
+        nonNegative: true,
+      })
+      requireNumber(reconciliation, 'residual_energy_kwh', reconciliationPath, issues)
+      requireNumber(reconciliation, 'tolerance_kwh', reconciliationPath, issues, {
+        nonNegative: true,
+      })
+      if (
+        reconciliation.endpoint_capture_coverage !== null &&
+        reconciliation.endpoint_capture_coverage !== undefined
+      ) {
+        requireNumber(reconciliation, 'endpoint_capture_coverage', reconciliationPath, issues, {
+          nonNegative: true,
+          maximum: 1,
+        })
+      }
+    }
+  }
+  return { ok: issues.length === 0, issues }
+}
+
+/** Validate external_api_v0 including optional by_model buckets. */
+export function validateExternalApiV0(value: unknown, path = 'external_api_v0'): ContractResult {
+  const issues: ContractIssue[] = []
+  if (!isObject(value)) {
+    return { ok: false, issues: [issue(path, 'expected object')] }
+  }
+  requireString(value, 'collector', path, issues)
+  if (value.execution_calls_v1 !== undefined) {
+    issues.push(...validateExecutionCallsV1(value.execution_calls_v1, `${path}.execution_calls_v1`).issues)
+  }
+  if (!Array.isArray(value.providers)) {
+    issues.push(issue(`${path}.providers`, 'expected array'))
+    return { ok: false, issues }
+  }
+  value.providers.forEach((provider, index) => {
+    const pp = `${path}.providers[${index}]`
+    if (!isObject(provider)) {
+      issues.push(issue(pp, 'expected object'))
+      return
+    }
+    requireString(provider, 'provider_key', pp, issues)
+    requireNumber(provider, 'calls', pp, issues, { nonNegative: true, integer: true })
+    requireNumber(provider, 'errors', pp, issues, { nonNegative: true, integer: true })
+    errorsDoNotExceedCalls(provider, pp, issues)
+    optionalNumber(provider, 'duration_ms_avg', pp, issues, { nonNegative: true })
+    optionalNumber(provider, 'input_tokens', pp, issues, { nonNegative: true, integer: true })
+    optionalNumber(provider, 'output_tokens', pp, issues, { nonNegative: true, integer: true })
+    optionalNumber(provider, 'total_tokens', pp, issues, { nonNegative: true, integer: true })
+    if (provider.by_model !== undefined) {
+      if (!Array.isArray(provider.by_model)) {
+        issues.push(issue(`${pp}.by_model`, 'expected array'))
+      } else {
+        provider.by_model.forEach((row, mi) => {
+          const mp = `${pp}.by_model[${mi}]`
+          if (!isObject(row)) {
+            issues.push(issue(mp, 'expected object'))
+            return
+          }
+          requireString(row, 'model', mp, issues)
+          requireNumber(row, 'calls', mp, issues, { nonNegative: true, integer: true })
+          requireNumber(row, 'errors', mp, issues, { nonNegative: true, integer: true })
+          errorsDoNotExceedCalls(row, mp, issues)
+          optionalNumber(row, 'input_tokens', mp, issues, { nonNegative: true, integer: true })
+          optionalNumber(row, 'output_tokens', mp, issues, { nonNegative: true, integer: true })
+          optionalNumber(row, 'total_tokens', mp, issues, { nonNegative: true, integer: true })
+        })
+      }
+    }
+  })
+  return { ok: issues.length === 0, issues }
+}
+
+export function validateExecutionCallsV1(value: unknown, path = 'execution_calls_v1'): ContractResult {
+  const issues: ContractIssue[] = []
+  if (!isObject(value)) return { ok: false, issues: [issue(path, 'expected object')] }
+  const allowed = ['schema_version', 'coverage', 'calls', 'dropped']
+  if (Object.keys(value).some(key => !allowed.includes(key))) issues.push(issue(path, 'unexpected field'))
+  if (value.schema_version !== 1 || value.coverage !== 'partial') issues.push(issue(path, 'expected version 1 and partial coverage'))
+  requireNumber(value, 'dropped', path, issues, { nonNegative: true, integer: true, maximum: Number.MAX_SAFE_INTEGER })
+  if (!Array.isArray(value.calls) || value.calls.length > 200) {
+    issues.push(issue(`${path}.calls`, 'expected at most 200 calls'))
+  } else value.calls.forEach((row, index) => {
+    const rp = `${path}.calls[${index}]`
+    if (!isObject(row)) { issues.push(issue(rp, 'expected object')); return }
+    if (Object.keys(row).some(key => !['execution_context', 'provider_key', 'duration_ms', 'error', 'input_tokens', 'output_tokens', 'tenant_id', 'model', 'token_usage_status'].includes(key))) issues.push(issue(rp, 'unexpected field'))
+    if (!['observed', 'unknown_or_zero'].includes(String(row.token_usage_status)) || typeof row.token_usage_status !== 'string') issues.push(issue(`${rp}.token_usage_status`, 'expected observed or unknown_or_zero'))
+    if (!validateExecutionContext(row.execution_context)) issues.push(issue(`${rp}.execution_context`, 'invalid execution context'))
+    for (const key of ['provider_key', 'tenant_id', 'model']) {
+      if (key !== 'provider_key' && row[key] == null) continue
+      if (typeof row[key] !== 'string' || [...row[key]].length > 128 || (key === 'provider_key' && !row[key])) issues.push(issue(`${rp}.${key}`, 'invalid bounded string'))
+    }
+    requireNumber(row, 'duration_ms', rp, issues, { nonNegative: true })
+    for (const key of ['input_tokens', 'output_tokens']) requireNumber(row, key, rp, issues, { nonNegative: true, integer: true, maximum: Number.MAX_SAFE_INTEGER })
+    if (typeof row.error !== 'boolean') issues.push(issue(`${rp}.error`, 'expected boolean'))
+  })
+  return { ok: issues.length === 0, issues }
+}
+
+export function validateMeasurementProvenance(
+  value: unknown,
+  path = 'measurement_provenance',
+): ContractResult {
+  const issues: ContractIssue[] = []
+  if (!isObject(value)) {
+    return { ok: false, issues: [issue(path, 'expected object')] }
+  }
+  const carbonFactor = value.carbon_factor
+  if (carbonFactor !== undefined) {
+    if (!isObject(carbonFactor)) {
+      issues.push(issue(`${path}.carbon_factor`, 'expected object'))
+    } else if (carbonFactor.value !== null) {
+      requireNumber(carbonFactor, 'value', `${path}.carbon_factor`, issues, {
+        nonNegative: true,
+      })
+    }
+  }
+  const grades = value.evidence_grades
+  if (grades !== undefined) {
+    if (!isObject(grades)) {
+      issues.push(issue(`${path}.evidence_grades`, 'expected object'))
+    } else {
+      requireNumber(grades, 'schema_version', `${path}.evidence_grades`, issues, {
+        nonNegative: true,
+        integer: true,
+      })
+      requireString(grades, 'policy_version', `${path}.evidence_grades`, issues)
+      requireString(grades, 'combined_floor_grade', `${path}.evidence_grades`, issues)
+      if (!isObject(grades.metrics)) {
+        issues.push(issue(`${path}.evidence_grades.metrics`, 'expected object'))
+      }
+    }
+  }
+  return { ok: issues.length === 0, issues }
+}
+
+/** Optional versioned evidence; legacy metadata remains valid. */
+export function validateEvidenceMetadata(value: unknown): ContractResult {
+  const issues: ContractIssue[] = []
+  if (!isObject(value)) return { ok: false, issues: [issue('session_metadata', 'expected object')] }
+  const provenance = isObject(value.measurement_provenance) ? value.measurement_provenance : {}
+  const specifications = [
+    {
+      value: value.workload_context_v1, present: 'workload_context_v1' in value,
+      path: 'workload_context_v1', required: ['workload_fingerprint'],
+      fingerprints: ['workload_fingerprint', 'configuration_fingerprint', 'dependency_fingerprint', 'hardware_fingerprint'],
+      strings: ['runtime_name', 'runtime_version'],
+      numbers: { input_size_bytes: 0, concurrency: 1 } as Record<string, number>,
+      enums: { cache_state: ['cold', 'warm', 'mixed', 'unknown'] } as Record<string, string[]>,
+    },
+    {
+      value: provenance.capture_v1, present: 'capture_v1' in provenance,
+      path: 'measurement_provenance.capture_v1', required: ['collector_name', 'collector_version', 'measurement_method'],
+      fingerprints: [], strings: ['collector_name', 'collector_version', 'calculation_version'],
+      numbers: { samples_expected: 0, samples_observed: 0 } as Record<string, number>,
+      enums: { measurement_method: ['measured', 'estimated', 'mixed', 'unavailable'] } as Record<string, string[]>,
+    },
+  ]
+  for (const spec of specifications) {
+    if (!spec.present) continue
+    const obj = spec.value
+    if (!isObject(obj)) { issues.push(issue(spec.path, 'expected object')); continue }
+    const allowed = new Set(['schema_version', ...spec.fingerprints, ...spec.strings,
+      ...Object.keys(spec.numbers), ...Object.keys(spec.enums),
+      ...(spec.path.includes('capture_v1') ? ['uncertainty_pct'] : [])])
+    for (const key of Object.keys(obj)) {
+      if (!allowed.has(key)) issues.push(issue(`${spec.path}.${key}`, 'unexpected field'))
+    }
+    if (obj.schema_version !== 1) issues.push(issue(`${spec.path}.schema_version`, 'expected version 1'))
+    for (const key of spec.required) {
+      if (obj[key] === undefined || obj[key] === null) issues.push(issue(`${spec.path}.${key}`, 'required'))
+    }
+    for (const key of spec.fingerprints) {
+      if (obj[key] != null && (typeof obj[key] !== 'string' || obj[key].length !== 64 || !/^[0-9a-f]{64}$/.test(obj[key]))) {
+        issues.push(issue(`${spec.path}.${key}`, 'expected lowercase SHA-256 fingerprint'))
+      }
+    }
+    for (const key of spec.strings) {
+      const field = obj[key]
+      if (field != null && (typeof field !== 'string' || [...field].length < 1 || [...field].length > 128)) {
+        issues.push(issue(`${spec.path}.${key}`, 'expected string of 1 to 128 characters'))
+      }
+    }
+    for (const [key, minimum] of Object.entries(spec.numbers)) {
+      if (obj[key] == null) continue
+      requireNumber(obj, key, spec.path, issues, { nonNegative: true, integer: true, maximum: Number.MAX_SAFE_INTEGER })
+      if (typeof obj[key] === 'number' && obj[key] < minimum) issues.push(issue(`${spec.path}.${key}`, `expected at least ${minimum}`))
+    }
+    for (const [key, choices] of Object.entries(spec.enums)) {
+      if (obj[key] != null && !choices.includes(obj[key] as string)) issues.push(issue(`${spec.path}.${key}`, 'invalid value'))
+    }
+    if (spec.path.includes('capture_v1')) {
+      if (obj.uncertainty_pct != null) optionalNumber(obj, 'uncertainty_pct', spec.path, issues, { nonNegative: true, maximum: 100 })
+      const expected = obj.samples_expected
+      const observed = obj.samples_observed
+      if ((expected == null) !== (observed == null)) issues.push(issue(spec.path, 'sample counts must be supplied together'))
+      if (typeof expected === 'number' && typeof observed === 'number' && observed > expected) issues.push(issue(spec.path, 'samples_observed cannot exceed samples_expected'))
+    }
+  }
+  return { ok: issues.length === 0, issues }
+}
+
+/**
+ * Validate a session_metadata fragment Node will upload.
+ * Requires runtime resources, external APIs, or MCP observations.
+ */
+export function validateRuntimeSessionMetadata(value: unknown): ContractResult {
+  const issues: ContractIssue[] = []
+  if (!isObject(value)) {
+    return { ok: false, issues: [issue('session_metadata', 'expected object')] }
+  }
+
+  const hasRuntime = value.service_runtime_v0 !== undefined
+  if ('execution_context_v1' in value && !validateExecutionContext(value.execution_context_v1)) {
+    issues.push(issue('execution_context_v1', 'invalid execution context'))
+  }
+  const hasExternal = value.external_api_v0 !== undefined
+  const hasMcp = value.mcp_tool_v0 !== undefined
+  if (!hasRuntime && !hasExternal && !hasMcp) {
+    issues.push(
+      issue(
+        'session_metadata',
+        'expected service_runtime_v0, external_api_v0, or mcp_tool_v0',
+      ),
+    )
+  }
+  if (hasRuntime) {
+    issues.push(...validateServiceRuntimeV0(value.service_runtime_v0).issues)
+  }
+  if (hasExternal) {
+    issues.push(...validateExternalApiV0(value.external_api_v0).issues)
+  }
+  if (hasMcp) {
+    const mcp = value.mcp_tool_v0
+    if (!isObject(mcp) || mcp.schema !== 'mcp_tool_v0' || !Array.isArray(mcp.calls) || !mcp.calls.length) {
+      issues.push(issue('mcp_tool_v0', 'expected MCP ledger with schema and non-empty calls'))
+    } else {
+      mcp.calls.forEach((call, index) => {
+        const path = `mcp_tool_v0.calls[${index}]`
+        if (!isObject(call)) { issues.push(issue(path, 'expected object')); return }
+        if ('execution_context' in call && !validateExecutionContext(call.execution_context)) issues.push(issue(`${path}.execution_context`, 'invalid execution context'))
+        requireString(call, 'server', path, issues)
+        requireString(call, 'tool', path, issues)
+        requireNumber(call, 'duration_ms', path, issues, { nonNegative: true })
+        if (typeof call.success !== 'boolean') issues.push(issue(`${path}.success`, 'expected boolean'))
+      })
+    }
+  }
+  if (value.measurement_provenance !== undefined) {
+    issues.push(...validateMeasurementProvenance(value.measurement_provenance).issues)
+  }
+  issues.push(...validateEvidenceMetadata(value).issues)
+  return { ok: issues.length === 0, issues }
+}
+
+export type {
+  ExternalApiV0,
+  MeasurementProvenance,
+  RuntimeSessionMetadata,
+  ServiceRuntimeV0,
+}

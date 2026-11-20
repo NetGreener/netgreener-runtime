@@ -1,0 +1,85 @@
+{
+  "$schema": "../../schemas/tenant_attribution_v0/session_metadata.fragment.schema.json",
+  "schema_note": "Node parity fixture — must match fixtures/tenant_attribution_v0/session_metadata_with_tenant.json semantics.",
+  "emitter": "node",
+  "run_context": {
+    "deploy_environment": "production",
+    "client": "deeddex-api",
+    "release_tag": "2026.08.31",
+    "tenant_id": "org_7f3a9c2b",
+    "tenant_source": "jwt_claim:organization_id",
+    "tenant_label": "Acme Corp"
+  },
+  "service_runtime_v0": {
+    "framework": "express",
+    "collector": "express_middleware",
+    "window_seconds": 60.0,
+    "attribution": "cpu_share",
+    "accuracy": "trend",
+    "units": [
+      {
+        "service_unit": "POST /v1/documents/ocr",
+        "unit_type": "http_route",
+        "calls": 84,
+        "errors": 1,
+        "cpu_seconds_total": 1.2,
+        "energy_kwh": 0.000036,
+        "carbon_g": 0.009,
+        "duration_ms": {
+          "avg": 210.0,
+          "max": 890.0
+        }
+      }
+    ],
+    "by_tenant": {
+      "org_7f3a9c2b": {
+        "tenant_id": "org_7f3a9c2b",
+        "calls": 84,
+        "errors": 1,
+        "units": [
+          {
+            "service_unit": "POST /v1/documents/ocr",
+            "unit_type": "http_route",
+            "calls": 84,
+            "errors": 1,
+            "cpu_seconds_total": 1.2,
+            "energy_kwh": 0.000036,
+            "carbon_g": 0.009,
+            "duration_ms": {
+              "avg": 210.0,
+              "max": 890.0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "external_api_v0": {
+    "collector": "outbound_http",
+    "providers": [
+      {
+        "provider_key": "azure_document_intelligence",
+        "calls": 1200,
+        "errors": 3,
+        "duration_ms_avg": 420.0,
+        "hosts": ["eastus.api.cognitive.microsoft.com"]
+      }
+    ],
+    "by_tenant": {
+      "org_7f3a9c2b": {
+        "tenant_id": "org_7f3a9c2b",
+        "calls": 1200,
+        "errors": 3,
+        "providers": [
+          {
+            "provider_key": "azure_document_intelligence",
+            "calls": 1200,
+            "errors": 3,
+            "duration_ms_avg": 420.0,
+            "hosts": ["eastus.api.cognitive.microsoft.com"]
+          }
+        ]
+      }
+    }
+  }
+}

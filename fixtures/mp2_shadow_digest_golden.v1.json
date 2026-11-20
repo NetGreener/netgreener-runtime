@@ -1,0 +1,47 @@
+{
+  "schema_name": "netgreener.mp2.shadow_digest_golden.v1",
+  "schema_version": 1,
+  "purpose": "Cross-language canonical payload digests for NETGREENER_MP2_SHADOW_COMPARE. Digest-only; no dual-POST or upload cutover.",
+  "algorithm": "sha256",
+  "encoding": "utf-8",
+  "canonical_json": {
+    "ensure_ascii": false,
+    "separators": [",", ":"],
+    "sort_keys": true
+  },
+  "cases": [
+    {
+      "id": "run_session_window_minimal",
+      "kind": "run_session_window",
+      "payload": {
+        "project_id": 1,
+        "runtime_window_id": "rtw_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "start_time": "2026-09-15T00:00:00.000Z",
+        "end_time": "2026-09-15T00:05:00.000Z",
+        "server_name": null,
+        "energy_kwh": null,
+        "session_metadata": {
+          "service_runtime_v0": {
+            "framework": "express",
+            "window_seconds": 60
+          }
+        }
+      },
+      "payload_sha256": "53e1bae2966f7d7f0739c9002ca110dfecb13e74c0c7838e8d687122f46f3e17"
+    },
+    {
+      "id": "observation_batch_minimal",
+      "kind": "observation_batch",
+      "payload": {
+        "schema_name": "netgreener.observation.v1",
+        "schema_version": 1,
+        "batch_id": "bat_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "events": [],
+        "routing": {
+          "project_id": 1
+        }
+      },
+      "payload_sha256": "700e24823469d384d57e9efd74fac5652a87804b5e7fa570fa44e67eba4d7808"
+    }
+  ]
+}

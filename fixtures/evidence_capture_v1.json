@@ -1,0 +1,416 @@
+{
+  "metadata_cases": [
+    {
+      "name": "complete evidence",
+      "valid": true,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        },
+        "measurement_provenance": {
+          "cpu_source": "process_cpu_time",
+          "energy_model": "tdp_utilization_estimate",
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": 100,
+            "samples_observed": 95,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1"
+          }
+        },
+        "custom_legacy_key": {
+          "keep": true
+        }
+      }
+    },
+    {
+      "name": "legacy metadata",
+      "valid": true,
+      "metadata": {
+        "run_context": {
+          "client": "old"
+        }
+      }
+    },
+    {
+      "name": "nullable optional fields",
+      "valid": true,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": null,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        },
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": null,
+            "samples_observed": null,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown field",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10",
+          "raw_input": "private"
+        }
+      }
+    },
+    {
+      "name": "bad fingerprint",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "bad",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "unsupported version",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 2,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "boolean version",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": true,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "fractional concurrency",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 1.5,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "unsafe count",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 9007199254740992,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "zero concurrency",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 0,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "string count",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": "4",
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "unknown cache state",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "hot",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "long runtime version",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+        }
+      }
+    },
+    {
+      "name": "observed exceeds expected",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": 100,
+            "samples_observed": 101,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing sample pair",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": null,
+            "samples_observed": 95,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "negative uncertainty",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": 100,
+            "samples_observed": 95,
+            "uncertainty_pct": -1,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "large uncertainty",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": 100,
+            "samples_observed": 95,
+            "uncertainty_pct": 101,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown measurement method",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "accurate",
+            "samples_expected": 100,
+            "samples_observed": 95,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "empty collector",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": 100,
+            "samples_observed": 95,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown capture field",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": {
+            "schema_version": 1,
+            "collector_name": "resource_sampler",
+            "collector_version": "1.0",
+            "measurement_method": "mixed",
+            "samples_expected": 100,
+            "samples_observed": 95,
+            "uncertainty_pct": 10.0,
+            "calculation_version": "tdp-v1",
+            "raw_prompt": "private"
+          }
+        }
+      }
+    },
+    {
+      "name": "null workload",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": null
+      }
+    },
+    {
+      "name": "null capture",
+      "valid": false,
+      "metadata": {
+        "measurement_provenance": {
+          "capture_v1": null
+        }
+      }
+    },
+    {
+      "name": "integer-valued JSON numbers",
+      "valid": true,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1.0,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "input_size_bytes": 4096,
+          "concurrency": 4.0,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    },
+    {
+      "name": "fingerprint with trailing newline",
+      "valid": false,
+      "metadata": {
+        "workload_context_v1": {
+          "schema_version": 1,
+          "workload_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+          "input_size_bytes": 4096,
+          "concurrency": 4,
+          "cache_state": "warm",
+          "dependency_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runtime_name": "python",
+          "runtime_version": "3.10"
+        }
+      }
+    }
+  ],
+  "recommendation_outcome": {
+    "schema_version": 1,
+    "status": "applied",
+    "commit_sha": "cccccccccccccccccccccccccccccccccccccccc",
+    "validation_status": "passed"
+  }
+}

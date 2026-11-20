@@ -1,0 +1,483 @@
+{
+  "carrier_cases": [
+    {
+      "name": "valid hex",
+      "carrier": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "state": "propagated"
+    },
+    {
+      "name": "serialized header",
+      "carrier": "{\"schema_version\": 1, \"execution_id\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"step_id\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}",
+      "state": "propagated"
+    },
+    {
+      "name": "uuid worker identity",
+      "carrier": {
+        "schema_version": 1,
+        "execution_id": "12345678-1234-1234-1234-123456789abc",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "state": "propagated"
+    },
+    {
+      "name": "missing",
+      "carrier": null,
+      "state": "missing"
+    },
+    {
+      "name": "unsupported version",
+      "carrier": {
+        "schema_version": 2,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "state": "invalid"
+    },
+    {
+      "name": "boolean version",
+      "carrier": {
+        "schema_version": true,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "state": "invalid"
+    },
+    {
+      "name": "raw field",
+      "carrier": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "prompt": "private"
+      },
+      "state": "invalid"
+    },
+    {
+      "name": "invalid id",
+      "carrier": {
+        "schema_version": 1,
+        "execution_id": "bad",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "state": "invalid"
+    },
+    {
+      "name": "newline id",
+      "carrier": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n"
+      },
+      "state": "invalid"
+    },
+    {
+      "name": "null id",
+      "carrier": {
+        "schema_version": 1,
+        "execution_id": null,
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "state": "invalid"
+    },
+    {
+      "name": "malformed header",
+      "carrier": "{",
+      "state": "invalid"
+    },
+    {
+      "name": "oversized header",
+      "carrier": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "state": "invalid"
+    },
+    {
+      "name": "array",
+      "carrier": [],
+      "state": "invalid"
+    }
+  ],
+  "root_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "context_cases": [
+    {
+      "name": "root",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": null,
+        "link_state": "root"
+      },
+      "valid": true
+    },
+    {
+      "name": "local child",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "cccccccccccccccccccccccccccccccc",
+        "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "link_state": "local"
+      },
+      "valid": true
+    },
+    {
+      "name": "self-parent",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "link_state": "local"
+      },
+      "valid": false
+    },
+    {
+      "name": "root has parent",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": "cccccccccccccccccccccccccccccccc",
+        "link_state": "root"
+      },
+      "valid": false
+    },
+    {
+      "name": "child has no parent",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": null,
+        "link_state": "local"
+      },
+      "valid": false
+    },
+    {
+      "name": "unknown field",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": null,
+        "link_state": "root",
+        "prompt": "private"
+      },
+      "valid": false
+    },
+    {
+      "name": "invalid id",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "unknown",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": null,
+        "link_state": "root"
+      },
+      "valid": false
+    },
+    {
+      "name": "array state",
+      "value": {
+        "schema_version": 1,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": null,
+        "link_state": [
+          "root"
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "boolean version",
+      "value": {
+        "schema_version": true,
+        "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_step_id": null,
+        "link_state": "root"
+      },
+      "valid": false
+    }
+  ],
+  "call_cases": [
+    {
+      "name": "observed calls",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": true
+    },
+    {
+      "name": "optional null model",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "model": null,
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": true
+    },
+    {
+      "name": "too many rows",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": false,
+      "repeat_calls": 201
+    },
+    {
+      "name": "false complete claim",
+      "value": {
+        "schema_version": 1,
+        "coverage": "complete",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "boolean dropped",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": true
+      },
+      "valid": false
+    },
+    {
+      "name": "raw body",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0,
+        "body": "private"
+      },
+      "valid": false
+    },
+    {
+      "name": "negative duration",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": -1,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "string tokens",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": "7",
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "extra row field",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "prompt": "private",
+            "token_usage_status": "observed"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "unknown token coverage",
+      "value": {
+        "schema_version": 1,
+        "coverage": "partial",
+        "calls": [
+          {
+            "execution_context": {
+              "schema_version": 1,
+              "execution_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "step_id": "cccccccccccccccccccccccccccccccc",
+              "parent_step_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "link_state": "local"
+            },
+            "provider_key": "openai",
+            "duration_ms": 10.0,
+            "error": false,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "tenant_id": "tenant-a",
+            "token_usage_status": "complete"
+          }
+        ],
+        "dropped": 0
+      },
+      "valid": false
+    }
+  ]
+}

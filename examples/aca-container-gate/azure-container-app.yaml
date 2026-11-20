@@ -1,0 +1,27 @@
+# Example Azure Container Apps revision env for NetGreener Runtime (Node Express).
+# Apply with your own image + secrets. Does not flip NETGREENER_EXPORT_MODE.
+#
+# az containerapp update -n <app> -g <rg> --set-env-vars \
+#   NETGREENER_SERVICE_RUNTIME=1 \
+#   NETGREENER_API_URL=https://core-api.netgreener.com \
+#   NETGREENER_TOKEN=secretref:netgreener-token \
+#   NETGREENER_PROJECT_ID=<id> \
+#   NETGREENER_ORG_ID=<id> \
+#   NETGREENER_EXPORT_MODE=direct
+
+properties:
+  template:
+    containers:
+      - name: app
+        env:
+          - name: NETGREENER_SERVICE_RUNTIME
+            value: "1"
+          - name: NETGREENER_EXPORT_MODE
+            value: direct
+          - name: NETGREENER_API_URL
+            value: https://core-api.netgreener.com
+          - name: NETGREENER_PROJECT_ID
+            value: "<project-id>"
+          - name: NETGREENER_ORG_ID
+            value: "<org-id>"
+          # CONTAINER_APP_NAME / REVISION are injected by the platform
